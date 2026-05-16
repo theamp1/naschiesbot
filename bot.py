@@ -1,13 +1,16 @@
 import os
 import asyncio
 import asyncpg
+import secrets
+import string
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, BufferedInputFile
 
 TOKEN = os.getenv("BOT_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL")
+ADMIN_ID = os.getenv("ADMIN_ID")
 
 LESSONS = {
     "lesson_1": {
@@ -37,11 +40,17 @@ db_pool = None
 
 
 def lessons_keyboard():
-    buttons = [
-        [InlineKeyboardButton(text=data["title"], callback_data=key)]
-        for key, data in LESSONS.items()
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=data["title"], callback_data=key)]
+            for key, data in LESSONS.items()
+        ]
+    )
+
+
+def generate_pin(length=10):
+    alphabet = string.ascii_uppercase + string.digits
+    return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
 async def init_db():
@@ -114,6 +123,41 @@ async def activate_user_with_pin(user_id: int, username: str, pin: str) -> str:
             return "activated"
 
 
+@dp.message(Command("myid"))
+async def my_id(message: types.Message):
+    await message.answer(f"Ваш Telegram ID:\n{message.from_user.id}")
+
+
+@dp.message(Command("generate_pins"))
+async def generate_pins(message: types.Message):
+    if not ADMIN_ID or str(message.from_user.id) != str(ADMIN_ID):
+        await message.answer("У вас немає доступу до цієї команди.")
+        return
+
+    pins = set()
+
+    while len(pins) < 3000:
+        pins.add(generate_pin())
+
+    async with db_pool.acquire() as conn:
+        for pin in pins:
+            await conn.execute(
+                "INSERT INTO pins (code) VALUES ($1) ON CONFLICT (code) DO NOTHING",
+                pin
+            )
+
+    text = "\n".join(sorted(pins))
+    file = BufferedInputFile(
+        text.encode("utf-8"),
+        filename="pins.txt"
+    )
+
+    await message.answer_document(
+        document=file,
+        caption="Готово ✅ Створено 3000 одноразових PIN-кодів."
+    )
+
+
 @dp.message(Command("start"))
 async def start(message: types.Message):
     user_id = message.from_user.id
@@ -177,6 +221,7 @@ async def send_lesson(callback: CallbackQuery):
 async def main():
     if not TOKEN:
         raise ValueError("BOT_TOKEN не знайдено.")
+
     if not DATABASE_URL:
         raise ValueError("DATABASE_URL не знайдено.")
 
