@@ -58,8 +58,11 @@ async def init_db():
     db_pool = await asyncpg.create_pool(DATABASE_URL)
 
     async with db_pool.acquire() as conn:
+        await conn.execute("DROP TABLE IF EXISTS pins;")
+        await conn.execute("DROP TABLE IF EXISTS activated_users;")
+
         await conn.execute("""
-            CREATE TABLE IF NOT EXISTS pins (
+            CREATE TABLE pins (
                 code TEXT PRIMARY KEY,
                 used_by BIGINT,
                 used_username TEXT,
@@ -68,13 +71,12 @@ async def init_db():
         """)
 
         await conn.execute("""
-            CREATE TABLE IF NOT EXISTS activated_users (
+            CREATE TABLE activated_users (
                 user_id BIGINT PRIMARY KEY,
                 username TEXT,
                 activated_at TIMESTAMP DEFAULT NOW()
             );
         """)
-
 
 async def is_user_activated(user_id: int) -> bool:
     async with db_pool.acquire() as conn:
