@@ -213,7 +213,10 @@ async def send_lesson(callback: CallbackQuery):
         return
 
     for file_id in lesson["files"]:
-        await callback.message.answer_video(video=file_id)
+        await callback.message.answer_video(
+            video=file_id,
+            protect_content=True
+        )
 
     await callback.answer()
 
