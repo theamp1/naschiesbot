@@ -58,11 +58,8 @@ async def init_db():
     db_pool = await asyncpg.create_pool(DATABASE_URL)
 
     async with db_pool.acquire() as conn:
-        await conn.execute("DROP TABLE IF EXISTS pins;")
-        await conn.execute("DROP TABLE IF EXISTS activated_users;")
-
         await conn.execute("""
-            CREATE TABLE pins (
+            CREATE TABLE IF NOT EXISTS pins (
                 code TEXT PRIMARY KEY,
                 used_by BIGINT,
                 used_username TEXT,
@@ -71,12 +68,13 @@ async def init_db():
         """)
 
         await conn.execute("""
-            CREATE TABLE activated_users (
+            CREATE TABLE IF NOT EXISTS activated_users (
                 user_id BIGINT PRIMARY KEY,
                 username TEXT,
                 activated_at TIMESTAMP DEFAULT NOW()
             );
         """)
+
 
 async def is_user_activated(user_id: int) -> bool:
     async with db_pool.acquire() as conn:
@@ -138,7 +136,7 @@ async def generate_pins(message: types.Message):
 
     pins = set()
 
-    while len(pins) < 3000:
+    while len(pins) < 1000:
         pins.add(generate_pin())
 
     async with db_pool.acquire() as conn:
@@ -156,7 +154,7 @@ async def generate_pins(message: types.Message):
 
     await message.answer_document(
         document=file,
-        caption="Готово ✅ Створено 3000 одноразових PIN-кодів."
+        caption="Готово ✅ Створено 1000 одноразових PIN-кодів."
     )
 
 
