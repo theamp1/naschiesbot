@@ -11,16 +11,22 @@ PIN_CODE = os.getenv("PIN_CODE", "1234")
 LESSONS = {
     "lesson_1": {
         "title": "Тренінг",
-        "file_id": "BAACAgIAAxkBAAMSaghlgxDsMKMDoNnUIiUS6OVSDoYAAvqcAAL2cQABSb00s6elWfjtOwQ"
+        "files": [
+            "BAACAgIAAxkBAAMSaghlgxDsMKMDoNnUIiUS6OVSDoYAAvqcAAL2cQABSb00s6elWfjtOwQ"
+        ]
     },
     "lesson_2": {
         "title": "Розбори",
-        "file_id": "BAACAgIAAxkBAAMQaghleSVDx79dp5Ei00qN4DjHP4kAAnOVAAIJlZBJSRVOh6Laheo7BA"
+        "files": [
+            "BAACAgIAAxkBAAMQaghleSVDx79dp5Ei00qN4DjHP4kAAnOVAAIJlZBJSRVOh6Laheo7BA"
+        ]
     },
     "lesson_3": {
         "title": "Подкаст з юристом",
-        "file_id": "BAACAgIAAyEFAATi_-lbAAMVaghAGdmQ8qlSozeLkqn9gV5_Y8UAAkelAAKp9IlLShFmtja0j3A7BA",
-        "file_id": "BQACAgIAAyEFAATi_-lbAAMXaghAghVRJdqWl-qJ2yTn6mjBYDoAAg2dAAIbZElI1COFJhYDm1k7BA"
+        "files": [
+            "BAACAgIAAyEFAATi_-lbAAMVaghAGdmQ8qlSozeLkqn9gV5_Y8UAAkelAAKp9IlLShFmtja0j3A7BA",
+            "BQACAgIAAyEFAATi_-lbAAMXaghAghVRJdqWl-qJ2yTn6mjBYDoAAg2dAAIbZElI1COFJhYDm1k7BA"
+        ]
     }
 }
 
@@ -105,10 +111,8 @@ async def send_lesson(callback: CallbackQuery):
         await callback.answer("Урок не знайдено")
         return
 
-  for file_id in lesson["files"]:
-    await callback.message.answer_video(
-        video=file_id
-    )
+    for file_id in lesson["files"]:
+        await callback.message.answer_video(video=file_id)
 
     await callback.answer()
 
