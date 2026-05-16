@@ -19,7 +19,8 @@ LESSONS = {
     },
     "lesson_3": {
         "title": "Подкаст з юристом",
-        "file_id": "BAACAgIAAyEFAATi_-lbAAMVaghAGdmQ8qlSozeLkqn9gV5_Y8UAAkelAAKp9IlLShFmtja0j3A7BA"
+        "file_id": "BAACAgIAAyEFAATi_-lbAAMVaghAGdmQ8qlSozeLkqn9gV5_Y8UAAkelAAKp9IlLShFmtja0j3A7BA",
+        "file_id": "BQACAgIAAyEFAATi_-lbAAMXaghAghVRJdqWl-qJ2yTn6mjBYDoAAg2dAAIbZElI1COFJhYDm1k7BA"
     }
 }
 
@@ -104,9 +105,9 @@ async def send_lesson(callback: CallbackQuery):
         await callback.answer("Урок не знайдено")
         return
 
+  for file_id in lesson["files"]:
     await callback.message.answer_video(
-        video=lesson["file_id"],
-        caption=lesson["title"]
+        video=file_id
     )
 
     await callback.answer()
