@@ -10,16 +10,15 @@ PIN_CODE = os.getenv("PIN_CODE", "1234")
 
 LESSONS = {
     "lesson_1": {
-        "title": "Подкаст з юристом",
-        "file_id": "BAACAgIAAxkBAAMSaghlgxDsMKMDoNnUIiUS6OVSDoYAAvqcAAL2cQABSb00s6elWfjtOwQ",
-        "file_id": "BQACAgIAAyEFAATi_-lbAAMXaghAghVRJdqWl-qJ2yTn6mjBYDoAAg2dAAIbZElI1COFJhYDm1k7BA"
+        "title": "Тренінг",
+        "file_id": "BAACAgIAAxkBAAMSaghlgxDsMKMDoNnUIiUS6OVSDoYAAvqcAAL2cQABSb00s6elWfjtOwQ"
     },
     "lesson_2": {
-        "title": "Урок 2",
+        "title": "Розбори",
         "file_id": "BAACAgIAAxkBAAMQaghleSVDx79dp5Ei00qN4DjHP4kAAnOVAAIJlZBJSRVOh6Laheo7BA"
     },
     "lesson_3": {
-        "title": "Урок 3",
+        "title": "Подкаст з юристом",
         "file_id": "BAACAgIAAyEFAATi_-lbAAMVaghAGdmQ8qlSozeLkqn9gV5_Y8UAAkelAAKp9IlLShFmtja0j3A7BA"
     }
 }
