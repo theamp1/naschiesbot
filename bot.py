@@ -6,7 +6,7 @@ from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 
 TOKEN = os.getenv("BOT_TOKEN")
-PIN_CODE = os.getenv("PIN_CODE", "1234")
+PIN_CODE = os.getenv("PIN_CODE", "5266")
 
 LESSONS = {
     "lesson_1": {
