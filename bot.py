@@ -1,12 +1,13 @@
 import os
-import json
 import asyncio
+import asyncpg
+
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 
 TOKEN = os.getenv("BOT_TOKEN")
-PIN_CODE = os.getenv("PIN_CODE", "5266")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 LESSONS = {
     "lesson_1": {
@@ -30,26 +31,9 @@ LESSONS = {
     }
 }
 
-USERS_FILE = "users.json"
-
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
-
-
-def load_users():
-    try:
-        with open(USERS_FILE, "r", encoding="utf-8") as file:
-            return set(json.load(file))
-    except FileNotFoundError:
-        return set()
-
-
-def save_users(users):
-    with open(USERS_FILE, "w", encoding="utf-8") as file:
-        json.dump(list(users), file)
-
-
-activated_users = load_users()
+db_pool = None
 
 
 def lessons_keyboard():
@@ -60,55 +44,128 @@ def lessons_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
+async def init_db():
+    global db_pool
+    db_pool = await asyncpg.create_pool(DATABASE_URL)
+
+    async with db_pool.acquire() as conn:
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS pins (
+                code TEXT PRIMARY KEY,
+                used_by BIGINT,
+                used_username TEXT,
+                used_at TIMESTAMP
+            );
+        """)
+
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS activated_users (
+                user_id BIGINT PRIMARY KEY,
+                username TEXT,
+                activated_at TIMESTAMP DEFAULT NOW()
+            );
+        """)
+
+
+async def is_user_activated(user_id: int) -> bool:
+    async with db_pool.acquire() as conn:
+        result = await conn.fetchval(
+            "SELECT user_id FROM activated_users WHERE user_id = $1",
+            user_id
+        )
+        return result is not None
+
+
+async def activate_user_with_pin(user_id: int, username: str, pin: str) -> str:
+    async with db_pool.acquire() as conn:
+        async with conn.transaction():
+            code = await conn.fetchrow(
+                "SELECT code, used_by FROM pins WHERE code = $1 FOR UPDATE",
+                pin
+            )
+
+            if not code:
+                return "invalid"
+
+            if code["used_by"] is not None:
+                return "used"
+
+            await conn.execute(
+                """
+                UPDATE pins
+                SET used_by = $1, used_username = $2, used_at = NOW()
+                WHERE code = $3
+                """,
+                user_id,
+                username,
+                pin
+            )
+
+            await conn.execute(
+                """
+                INSERT INTO activated_users (user_id, username)
+                VALUES ($1, $2)
+                ON CONFLICT (user_id) DO NOTHING
+                """,
+                user_id,
+                username
+            )
+
+            return "activated"
+
+
 @dp.message(Command("start"))
 async def start(message: types.Message):
-    user_id = str(message.from_user.id)
+    user_id = message.from_user.id
 
-    if user_id in activated_users:
+    if await is_user_activated(user_id):
         await message.answer(
-            "Ви вже активовані ✅\nОберіть урок:",
+            "Ви вже активовані ✅\nОберіть матеріал:",
             reply_markup=lessons_keyboard()
         )
     else:
-        await message.answer("Введіть PIN-код для активації:")
+        await message.answer("Введіть ваш одноразовий PIN-код для активації доступу:")
 
 
 @dp.message()
 async def check_pin(message: types.Message):
-    user_id = str(message.from_user.id)
+    user_id = message.from_user.id
+    username = message.from_user.username or ""
+    pin = message.text.strip()
 
-    if user_id in activated_users:
+    if await is_user_activated(user_id):
         await message.answer(
-            "Оберіть урок:",
+            "Ваш доступ вже активований ✅\nОберіть матеріал:",
             reply_markup=lessons_keyboard()
         )
         return
 
-    if message.text == PIN_CODE:
-        activated_users.add(user_id)
-        save_users(activated_users)
+    result = await activate_user_with_pin(user_id, username, pin)
 
+    if result == "activated":
         await message.answer(
-            "Активація успішна ✅\nТепер оберіть урок:",
+            "Активація успішна ✅\nВаш доступ збережено. Тепер оберіть матеріал:",
             reply_markup=lessons_keyboard()
         )
+    elif result == "used":
+        await message.answer("Цей PIN-код вже використаний. Введіть інший код.")
     else:
-        await message.answer("Невірний PIN-код. Спробуйте ще раз.")
+        await message.answer("Невірний PIN-код. Перевірте код і спробуйте ще раз.")
 
 
 @dp.callback_query()
 async def send_lesson(callback: CallbackQuery):
-    user_id = str(callback.from_user.id)
+    user_id = callback.from_user.id
 
-    if user_id not in activated_users:
-        await callback.message.answer("Спочатку введіть PIN-код через /start")
+    if not await is_user_activated(user_id):
+        await callback.message.answer("Спочатку активуйте доступ через /start")
         await callback.answer()
         return
 
     lesson = LESSONS.get(callback.data)
 
     if not lesson:
-        await callback.answer("Урок не знайдено")
+        await callback.answer("Матеріал не знайдено")
         return
 
     for file_id in lesson["files"]:
@@ -119,8 +176,11 @@ async def send_lesson(callback: CallbackQuery):
 
 async def main():
     if not TOKEN:
-        raise ValueError("BOT_TOKEN не знайдено. Додайте його в Railway Variables.")
+        raise ValueError("BOT_TOKEN не знайдено.")
+    if not DATABASE_URL:
+        raise ValueError("DATABASE_URL не знайдено.")
 
+    await init_db()
     await dp.start_polling(bot)
 
 
