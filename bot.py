@@ -24,25 +24,21 @@ ADMIN_ID = os.getenv("ADMIN_ID")
 LESSONS = {
     "lesson_1": {
         "title": "Частина 1",
-        "style": "primary",
         "video": "BAACAgIAAxkBAANnarqES0aFgGjVqBP2rqoVhojHzgsAAv2xAAJngNhJJZ1VvfueLjo9BA",
-        "pdf": "BQACAgIAAxkBAANtarqE5Ix0gTGi94-IV358jBfig1cAAgGyAAJngNhJXf2y_oT681A9BA",
+        "pdf": "BQACAgIAAxkBAAOIarqJWtIGX7hD-8Z9PPohS6MI6jMAAjKyAAJngNhJNtnUyW3_iEY9BA",
     },
     "lesson_2": {
         "title": "Частина 2",
-        "style": "primary",
         "video": "BAACAgIAAxkBAANparqEgIkYemrc_ebg4aFYwLExcB8AAv-xAAJngNhJwzuzfa8Tgkg9BA",
-        "pdf": "BQACAgIAAxkBAANvarqE7L8KpjzE4wkTfc291df15sYAAgKyAAJngNhJ4Qthe1xGKv49BA",
+        "pdf": "BQACAgIAAxkBAAOJarqJWtoOyTjDwvLhkNgD3yHKgukAAjCyAAJngNhJTJ9VPQAB6U88PQQ",
     },
     "lesson_3": {
         "title": "Частина 3",
-        "style": "primary",
         "video": "BAACAgIAAxkBAANrarqE0QhSOYRVSuYYH6fMDNmOMfsAA7IAAmeA2EnUMyz9b1wQLT0E",
-        "pdf": "BQACAgIAAxkBAANxarqE9J10mM0VD0sdf_mKOgYfW88AAgOyAAJngNhJgIgfH_MUne89BA",
+        "pdf": "BQACAgIAAxkBAAOHarqJWnfA0q4E_2I2ncw8fEG_2L4AAjGyAAJngNhJAsU43Z2Cw249BA",
     },
     "lawyer_podcast": {
         "title": "Подкаст з юристом",
-        "style": "success",
         "video": "BAACAgIAAyEFAATi_-lbAAMVaghAGdmQ8qlSozeLkqn9gV5_Y8UAAkelAAKp9IlLShFmtja0j3A7BA",
         "pdf": "BQACAgIAAyEFAATi_-lbAAMXaghAghVRJdqWl-qJ2yTn6mjBYDoAAg2dAAIbZElI1COFJhYDm1k7BA",
     },
@@ -61,14 +57,34 @@ def is_admin(user_id: int) -> bool:
 def lessons_keyboard():
     return InlineKeyboardMarkup(
         inline_keyboard=[
+            [InlineKeyboardButton(text=data["title"], callback_data=key)]
+            for key, data in LESSONS.items()
+        ]
+    )
+
+
+NEXT_LESSON = {
+    "lesson_1": ("lesson_2", "Далі"),
+    "lesson_2": ("lesson_3", "Далі"),
+    "lesson_3": ("lawyer_podcast", "Подкаст з юристом"),
+}
+
+
+def next_lesson_keyboard(current_lesson: str):
+    next_data = NEXT_LESSON.get(current_lesson)
+    if not next_data:
+        return None
+
+    callback_data, button_text = next_data
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=data["title"],
-                    callback_data=key,
-                    style=data.get("style"),
+                    text=button_text,
+                    callback_data=callback_data,
+                    style="success",
                 )
             ]
-            for key, data in LESSONS.items()
         ]
     )
 
@@ -306,6 +322,7 @@ async def send_lesson(callback: CallbackQuery):
         document=lesson["pdf"],
         caption=f"📄 Конспект — {lesson['title']}",
         protect_content=True,
+        reply_markup=next_lesson_keyboard(callback.data),
     )
 
     await callback.answer()
