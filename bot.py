@@ -4,39 +4,54 @@ import asyncpg
 import secrets
 import string
 
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, BufferedInputFile
+from aiogram.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    CallbackQuery,
+    BufferedInputFile,
+)
+
 
 TOKEN = os.getenv("BOT_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL")
 ADMIN_ID = os.getenv("ADMIN_ID")
 
+
+# Поки що тут залишені старі матеріали.
+# Коли отримаємо 4 нові VIDEO_FILE_ID та 4 нові PDF_FILE_ID,
+# замінимо цей блок на чотири нові уроки.
 LESSONS = {
     "lesson_1": {
         "title": "Тренінг",
         "files": [
             "BAACAgIAAxkBAAMSaghlgxDsMKMDoNnUIiUS6OVSDoYAAvqcAAL2cQABSb00s6elWfjtOwQ"
-        ]
+        ],
     },
     "lesson_2": {
         "title": "Розбори",
         "files": [
             "BAACAgIAAxkBAAMQaghleSVDx79dp5Ei00qN4DjHP4kAAnOVAAIJlZBJSRVOh6Laheo7BA"
-        ]
+        ],
     },
     "lesson_3": {
         "title": "Подкаст з юристом",
         "files": [
             "BAACAgIAAyEFAATi_-lbAAMVaghAGdmQ8qlSozeLkqn9gV5_Y8UAAkelAAKp9IlLShFmtja0j3A7BA",
-            "BQACAgIAAyEFAATi_-lbAAMXaghAghVRJdqWl-qJ2yTn6mjBYDoAAg2dAAIbZElI1COFJhYDm1k7BA"
-        ]
-    }
+            "BQACAgIAAyEFAATi_-lbAAMXaghAghVRJdqWl-qJ2yTn6mjBYDoAAg2dAAIbZElI1COFJhYDm1k7BA",
+        ],
+    },
 }
+
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 db_pool = None
+
+
+def is_admin(user_id: int) -> bool:
+    return bool(ADMIN_ID) and str(user_id) == str(ADMIN_ID)
 
 
 def lessons_keyboard():
@@ -58,29 +73,32 @@ async def init_db():
     db_pool = await asyncpg.create_pool(DATABASE_URL)
 
     async with db_pool.acquire() as conn:
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS pins (
                 code TEXT PRIMARY KEY,
                 used_by BIGINT,
                 used_username TEXT,
                 used_at TIMESTAMP
             );
-        """)
+            """
+        )
 
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS activated_users (
                 user_id BIGINT PRIMARY KEY,
                 username TEXT,
                 activated_at TIMESTAMP DEFAULT NOW()
             );
-        """)
+            """
+        )
 
 
 async def is_user_activated(user_id: int) -> bool:
     async with db_pool.acquire() as conn:
         result = await conn.fetchval(
-            "SELECT user_id FROM activated_users WHERE user_id = $1",
-            user_id
+            "SELECT user_id FROM activated_users WHERE user_id = $1", user_id
         )
         return result is not None
 
@@ -89,8 +107,7 @@ async def activate_user_with_pin(user_id: int, username: str, pin: str) -> str:
     async with db_pool.acquire() as conn:
         async with conn.transaction():
             code = await conn.fetchrow(
-                "SELECT code, used_by FROM pins WHERE code = $1 FOR UPDATE",
-                pin
+                "SELECT code, used_by FROM pins WHERE code = $1 FOR UPDATE", pin
             )
 
             if not code:
@@ -107,7 +124,7 @@ async def activate_user_with_pin(user_id: int, username: str, pin: str) -> str:
                 """,
                 user_id,
                 username,
-                pin
+                pin,
             )
 
             await conn.execute(
@@ -117,7 +134,7 @@ async def activate_user_with_pin(user_id: int, username: str, pin: str) -> str:
                 ON CONFLICT (user_id) DO NOTHING
                 """,
                 user_id,
-                username
+                username,
             )
 
             return "activated"
@@ -128,9 +145,60 @@ async def my_id(message: types.Message):
     await message.answer(f"Ваш Telegram ID:\n{message.from_user.id}")
 
 
+@dp.message(Command("media_help"))
+async def media_help(message: types.Message):
+    if not is_admin(message.from_user.id):
+        await message.answer("У вас немає доступу до цієї команди.")
+        return
+
+    await message.answer(
+        "Надішліть мені відео або PDF окремими повідомленнями.\n\n"
+        "У відповідь я покажу Telegram file_id кожного файла. "
+        "Потім ці значення можна вставити в уроки бота."
+    )
+
+
+# Ці обробники обов'язково мають стояти вище за загальний check_pin.
+@dp.message(F.video)
+async def get_video_file_id(message: types.Message):
+    if not is_admin(message.from_user.id):
+        await message.answer("Надсилати навчальні матеріали може лише адміністратор.")
+        return
+
+    video = message.video
+    size_mb = (video.file_size or 0) / 1024 / 1024
+    await message.answer(
+        "🎬 VIDEO_FILE_ID\n\n"
+        f"<code>{video.file_id}</code>\n\n"
+        f"Розмір: {size_mb:.1f} МБ",
+        parse_mode="HTML",
+    )
+
+
+@dp.message(F.document)
+async def get_document_file_id(message: types.Message):
+    if not is_admin(message.from_user.id):
+        await message.answer("Надсилати навчальні матеріали може лише адміністратор.")
+        return
+
+    document = message.document
+    if document.mime_type != "application/pdf":
+        await message.answer("Надішліть документ саме у форматі PDF.")
+        return
+
+    size_mb = (document.file_size or 0) / 1024 / 1024
+    await message.answer(
+        "📄 PDF_FILE_ID\n\n"
+        f"<code>{document.file_id}</code>\n\n"
+        f"Файл: {document.file_name or 'без назви'}\n"
+        f"Розмір: {size_mb:.1f} МБ",
+        parse_mode="HTML",
+    )
+
+
 @dp.message(Command("generate_pins"))
 async def generate_pins(message: types.Message):
-    if not ADMIN_ID or str(message.from_user.id) != str(ADMIN_ID):
+    if not is_admin(message.from_user.id):
         await message.answer("У вас немає доступу до цієї команди.")
         return
 
@@ -143,18 +211,15 @@ async def generate_pins(message: types.Message):
         for pin in pins:
             await conn.execute(
                 "INSERT INTO pins (code) VALUES ($1) ON CONFLICT (code) DO NOTHING",
-                pin
+                pin,
             )
 
     text = "\n".join(sorted(pins))
-    file = BufferedInputFile(
-        text.encode("utf-8"),
-        filename="pins.txt"
-    )
+    file = BufferedInputFile(text.encode("utf-8"), filename="pins.txt")
 
     await message.answer_document(
         document=file,
-        caption="Готово ✅ Створено 1000 одноразових PIN-кодів."
+        caption="Готово ✅ Створено 1000 одноразових PIN-кодів.",
     )
 
 
@@ -165,22 +230,30 @@ async def start(message: types.Message):
     if await is_user_activated(user_id):
         await message.answer(
             "Ви вже активовані ✅\nОберіть матеріал:",
-            reply_markup=lessons_keyboard()
+            reply_markup=lessons_keyboard(),
         )
     else:
-        await message.answer("Введіть ваш одноразовий PIN-код для активації доступу:")
+        await message.answer(
+            "Введіть ваш одноразовий PIN-код для активації доступу:"
+        )
 
 
 @dp.message()
 async def check_pin(message: types.Message):
     user_id = message.from_user.id
     username = message.from_user.username or ""
+
+    # Не намагаємося викликати .strip() у відео, фото, стікерів тощо.
+    if not message.text:
+        await message.answer("Введіть PIN-код текстовим повідомленням.")
+        return
+
     pin = message.text.strip()
 
     if await is_user_activated(user_id):
         await message.answer(
             "Ваш доступ вже активований ✅\nОберіть матеріал:",
-            reply_markup=lessons_keyboard()
+            reply_markup=lessons_keyboard(),
         )
         return
 
@@ -188,8 +261,9 @@ async def check_pin(message: types.Message):
 
     if result == "activated":
         await message.answer(
-            "Активація успішна ✅\nВаш доступ збережено. Тепер оберіть матеріал:",
-            reply_markup=lessons_keyboard()
+            "Активація успішна ✅\nВаш доступ збережено. "
+            "Тепер оберіть матеріал:",
+            reply_markup=lessons_keyboard(),
         )
     elif result == "used":
         await message.answer("Цей PIN-код вже використаний. Введіть інший код.")
@@ -213,10 +287,7 @@ async def send_lesson(callback: CallbackQuery):
         return
 
     for file_id in lesson["files"]:
-        await callback.message.answer_video(
-            video=file_id,
-            protect_content=True
-        )
+        await callback.message.answer_video(video=file_id, protect_content=True)
 
     await callback.answer()
 
