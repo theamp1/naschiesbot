@@ -19,28 +19,32 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 ADMIN_ID = os.getenv("ADMIN_ID")
 
 
-# Поки що тут залишені старі матеріали.
-# Коли отримаємо 4 нові VIDEO_FILE_ID та 4 нові PDF_FILE_ID,
-# замінимо цей блок на чотири нові уроки.
+# Три нові частини + збережений подкаст із юристом.
+# Для кожного матеріалу окремо вказані Telegram file_id відео та PDF.
 LESSONS = {
     "lesson_1": {
-        "title": "Тренінг",
-        "files": [
-            "BAACAgIAAxkBAAMSaghlgxDsMKMDoNnUIiUS6OVSDoYAAvqcAAL2cQABSb00s6elWfjtOwQ"
-        ],
+        "title": "Частина 1",
+        "style": "primary",
+        "video": "BAACAgIAAxkBAANnarqES0aFgGjVqBP2rqoVhojHzgsAAv2xAAJngNhJJZ1VvfueLjo9BA",
+        "pdf": "BQACAgIAAxkBAANtarqE5Ix0gTGi94-IV358jBfig1cAAgGyAAJngNhJXf2y_oT681A9BA",
     },
     "lesson_2": {
-        "title": "Розбори",
-        "files": [
-            "BAACAgIAAxkBAAMQaghleSVDx79dp5Ei00qN4DjHP4kAAnOVAAIJlZBJSRVOh6Laheo7BA"
-        ],
+        "title": "Частина 2",
+        "style": "primary",
+        "video": "BAACAgIAAxkBAANparqEgIkYemrc_ebg4aFYwLExcB8AAv-xAAJngNhJwzuzfa8Tgkg9BA",
+        "pdf": "BQACAgIAAxkBAANvarqE7L8KpjzE4wkTfc291df15sYAAgKyAAJngNhJ4Qthe1xGKv49BA",
     },
     "lesson_3": {
+        "title": "Частина 3",
+        "style": "primary",
+        "video": "BAACAgIAAxkBAANrarqE0QhSOYRVSuYYH6fMDNmOMfsAA7IAAmeA2EnUMyz9b1wQLT0E",
+        "pdf": "BQACAgIAAxkBAANxarqE9J10mM0VD0sdf_mKOgYfW88AAgOyAAJngNhJgIgfH_MUne89BA",
+    },
+    "lawyer_podcast": {
         "title": "Подкаст з юристом",
-        "files": [
-            "BAACAgIAAyEFAATi_-lbAAMVaghAGdmQ8qlSozeLkqn9gV5_Y8UAAkelAAKp9IlLShFmtja0j3A7BA",
-            "BQACAgIAAyEFAATi_-lbAAMXaghAghVRJdqWl-qJ2yTn6mjBYDoAAg2dAAIbZElI1COFJhYDm1k7BA",
-        ],
+        "style": "success",
+        "video": "BAACAgIAAyEFAATi_-lbAAMVaghAGdmQ8qlSozeLkqn9gV5_Y8UAAkelAAKp9IlLShFmtja0j3A7BA",
+        "pdf": "BQACAgIAAyEFAATi_-lbAAMXaghAghVRJdqWl-qJ2yTn6mjBYDoAAg2dAAIbZElI1COFJhYDm1k7BA",
     },
 }
 
@@ -57,7 +61,13 @@ def is_admin(user_id: int) -> bool:
 def lessons_keyboard():
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=data["title"], callback_data=key)]
+            [
+                InlineKeyboardButton(
+                    text=data["title"],
+                    callback_data=key,
+                    style=data.get("style"),
+                )
+            ]
             for key, data in LESSONS.items()
         ]
     )
@@ -286,8 +296,17 @@ async def send_lesson(callback: CallbackQuery):
         await callback.answer("Матеріал не знайдено")
         return
 
-    for file_id in lesson["files"]:
-        await callback.message.answer_video(video=file_id, protect_content=True)
+    await callback.message.answer_video(
+        video=lesson["video"],
+        caption=f"🎬 {lesson['title']}",
+        protect_content=True,
+    )
+
+    await callback.message.answer_document(
+        document=lesson["pdf"],
+        caption=f"📄 Конспект — {lesson['title']}",
+        protect_content=True,
+    )
 
     await callback.answer()
 
