@@ -468,14 +468,21 @@ async def send_review_link(message: types.Message):
         return
 
     parts = (message.text or "").split(maxsplit=1)
-    if len(parts) != 2 or not parts[1].startswith(("https://", "http://")):
+    if len(parts) == 2:
+        zoom_url = parts[1].strip()
+        if not zoom_url.startswith(("https://", "http://")):
+            zoom_url = "https://" + zoom_url
+    else:
+        zoom_url = REVIEW_ZOOM_URL.strip()
+
+    if not zoom_url:
         await message.answer(
             "Використання:\n"
-            "/send_review_link https://посилання-на-zoom"
+            "/send_review_link https://посилання-на-zoom\n\n"
+            "Або додайте REVIEW_ZOOM_URL у Variables на Railway і використовуйте "
+            "команду без посилання."
         )
         return
-
-    zoom_url = parts[1].strip()
     async with db_pool.acquire() as conn:
         users = await conn.fetch(
             """
@@ -518,6 +525,41 @@ async def send_review_link(message: types.Message):
         f"Посилання надіслано зареєстрованим учасникам: {sent}.\n"
         f"Не вдалося надіслати: {failed}."
     )
+
+
+@dp.message(Command("reset_review"))
+async def reset_review(message: types.Message):
+    if not is_admin(message.from_user.id):
+        await message.answer("У вас немає доступу до цієї команди.")
+        return
+
+    parts = (message.text or "").split(maxsplit=1)
+    if len(parts) == 2:
+        try:
+            target_user_id = int(parts[1].strip())
+        except ValueError:
+            await message.answer(
+                "Після команди потрібно вказати числовий Telegram ID."
+            )
+            return
+    else:
+        target_user_id = message.from_user.id
+
+    async with db_pool.acquire() as conn:
+        result = await conn.execute(
+            "DELETE FROM review_registrations WHERE user_id = $1",
+            target_user_id,
+        )
+
+    if result == "DELETE 1":
+        await message.answer(
+            f"Тестову реєстрацію користувача {target_user_id} очищено. "
+            "Тепер можна знову натиснути «Так, я буду 🙋‍♀️»."
+        )
+    else:
+        await message.answer(
+            f"Реєстрацію користувача {target_user_id} у базі не знайдено."
+        )
 
 
 @dp.message(Command("generate_pins"))
