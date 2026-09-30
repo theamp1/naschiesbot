@@ -29,8 +29,9 @@ REVIEW_ZOOM_URL = os.getenv("REVIEW_ZOOM_URL", "")
 FEEDBACK_CHAT_URL = "https://t.me/+_o1-2lmkNn4wMWYy"
 
 
-INTRO_TEXT = """
-<b>Привіт! Рада вітати вас у тренінгу <b>про етичну систему стабільних продажів</b> ✨
+INTRO_TEXT = """1️⃣
+
+Привіт! Рада вітати вас у тренінгу <b>про етичну систему стабільних продажів</b> ✨
 
 Попереду три частини, які допоможуть вам зібрати продажі в зрозумілу систему: навчитися продавати без тиску й маніпуляцій, побудувати стратегію під свою фінансову ціль та продумати шлях клієнта так, щоб продажі не залежали від випадковості чи одного вдалого запуску.
 
@@ -39,7 +40,7 @@ INTRO_TEXT = """
 А перед початком я хочу коротко розповісти, як краще працювати з тренінгом, щоб забрати з нього максимум."""
 
 
-HOW_TO_TEXT = """
+HOW_TO_TEXT = """3️⃣
 
 <b>Як працювати з тренінгом:</b>
 
@@ -54,7 +55,12 @@ HOW_TO_TEXT = """
 
 LESSONS = {
     "lesson_1": {
-        "title": "<b>ЧАСТИНА 1. ЕТИЧНІ ПРОДАЖІ</b>
+        "title": "Частина 1. Етичні продажі",
+        "video": "BAACAgIAAxkBAANnarqES0aFgGjVqBP2rqoVhojHzgsAAv2xAAJngNhJJZ1VvfueLjo9BA",
+        "pdf": "BQACAgIAAxkBAAOIarqJWtIGX7hD-8Z9PPohS6MI6jMAAjKyAAJngNhJNtnUyW3_iEY9BA",
+        "video_text": """4️⃣
+
+<b>ЧАСТИНА 1. ЕТИЧНІ ПРОДАЖІ</b>
 
 Починаємо з фундаменту: як продавати переконливо, але без тиску, маніпуляцій і внутрішнього відчуття, що ви комусь щось нав’язуєте.
 
@@ -73,12 +79,7 @@ LESSONS = {
 1:30:41 — практичне завдання
 1:33:39 — питання та додаткові приклади
 
-Після перегляду обов’язково переходьте до конспекту — саме там ви зафіксуєте власну позицію у продажах."""",
-        "video": "BAACAgIAAxkBAANnarqES0aFgGjVqBP2rqoVhojHzgsAAv2xAAJngNhJJZ1VvfueLjo9BA",
-        "pdf": "BQACAgIAAxkBAAOIarqJWtIGX7hD-8Z9PPohS6MI6jMAAjKyAAJngNhJNtnUyW3_iEY9BA",
-    
-
-,
+Після перегляду обов’язково переходьте до конспекту — саме там ви зафіксуєте власну позицію у продажах.""",
         "workbook_text": """5️⃣
 
 <b>КОНСПЕКТ І ВОРКБУК ДО ЧАСТИНИ 1</b>
@@ -330,11 +331,11 @@ async def send_lesson(message: types.Message, lesson_key: str):
     lesson = LESSONS[lesson_key]
     await message.answer_video(
         video=lesson["video"],
-        caption=f"🎬 {lesson['title']}",
+        caption=lesson["video_text"],
+        parse_mode="HTML",
+        supports_streaming=True,
         protect_content=True,
     )
-    await message.answer(lesson["video_text"], parse_mode="HTML")
-    await message.answer(lesson["workbook_text"], parse_mode="HTML")
 
     if lesson_key == "lesson_1":
         button = one_button("Готово, далі", "lesson_2", green=True)
@@ -345,7 +346,8 @@ async def send_lesson(message: types.Message, lesson_key: str):
 
     await message.answer_document(
         document=lesson["pdf"],
-        caption=f"📄 Конспект і воркбук — {lesson['title']}",
+        caption=lesson["workbook_text"],
+        parse_mode="HTML",
         protect_content=True,
         reply_markup=button,
     )
