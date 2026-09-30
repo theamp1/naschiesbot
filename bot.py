@@ -29,9 +29,7 @@ REVIEW_ZOOM_URL = os.getenv("REVIEW_ZOOM_URL", "")
 FEEDBACK_CHAT_URL = "https://t.me/+_o1-2lmkNn4wMWYy"
 
 
-INTRO_TEXT = """1️⃣
-
-Привіт! Рада вітати вас у тренінгу <b>про етичну систему стабільних продажів</b> ✨
+INTRO_TEXT = """Привіт! Рада вітати вас у тренінгу <b>про етичну систему стабільних продажів</b> ✨
 
 Попереду три частини, які допоможуть вам зібрати продажі в зрозумілу систему: навчитися продавати без тиску й маніпуляцій, побудувати стратегію під свою фінансову ціль та продумати шлях клієнта так, щоб продажі не залежали від випадковості чи одного вдалого запуску.
 
@@ -40,9 +38,7 @@ INTRO_TEXT = """1️⃣
 А перед початком я хочу коротко розповісти, як краще працювати з тренінгом, щоб забрати з нього максимум."""
 
 
-HOW_TO_TEXT = """3️⃣
-
-<b>Як працювати з тренінгом:</b>
+HOW_TO_TEXT = """<b>Як працювати з тренінгом:</b>
 
 1. Тренінг складається з трьох частин, які відкриватимуться послідовно.
 2. Спочатку перегляньте матеріал відповідної частини.
@@ -58,9 +54,7 @@ LESSONS = {
         "title": "Частина 1. Етичні продажі",
         "video": "BAACAgIAAxkBAANnarqES0aFgGjVqBP2rqoVhojHzgsAAv2xAAJngNhJJZ1VvfueLjo9BA",
         "pdf": "BQACAgIAAxkBAAOIarqJWtIGX7hD-8Z9PPohS6MI6jMAAjKyAAJngNhJNtnUyW3_iEY9BA",
-        "video_text": """4️⃣
-
-<b>ЧАСТИНА 1. ЕТИЧНІ ПРОДАЖІ</b>
+        "video_text": """<b>ЧАСТИНА 1. ЕТИЧНІ ПРОДАЖІ</b>
 
 Починаємо з фундаменту: як продавати переконливо, але без тиску, маніпуляцій і внутрішнього відчуття, що ви комусь щось нав’язуєте.
 
@@ -80,9 +74,7 @@ LESSONS = {
 1:33:39 — питання та додаткові приклади
 
 Після перегляду обов’язково переходьте до конспекту — саме там ви зафіксуєте власну позицію у продажах.""",
-        "workbook_text": """5️⃣
-
-<b>КОНСПЕКТ І ВОРКБУК ДО ЧАСТИНИ 1</b>
+        "workbook_text": """<b>КОНСПЕКТ І ВОРКБУК ДО ЧАСТИНИ 1</b>
 
 У файлі відкрийте перший блок — від теми про соціально-етичні продажі до завдання <b>«Моя позиція в продажах»</b>.
 
@@ -103,9 +95,7 @@ LESSONS = {
         "title": "Частина 2. Фундамент продажів",
         "video": "BAACAgIAAxkBAANparqEgIkYemrc_ebg4aFYwLExcB8AAv-xAAJngNhJwzuzfa8Tgkg9BA",
         "pdf": "BQACAgIAAxkBAAOJarqJWtoOyTjDwvLhkNgD3yHKgukAAjCyAAJngNhJTJ9VPQAB6U88PQQ",
-        "video_text": """6️⃣
-
-<b>ЧАСТИНА 2. ФУНДАМЕНТ ПРОДАЖІВ</b>
+        "video_text": """<b>ЧАСТИНА 2. ФУНДАМЕНТ ПРОДАЖІВ</b>
 
 У цій частині розберемо, чому стабільний дохід починається не з більшої кількості дій, а з реалістичної фінансової цілі, правильної конфігурації ресурсів і зрозумілої стратегії.
 
@@ -126,9 +116,7 @@ LESSONS = {
 1:41:44 — відповіді на запитання учасниць
 
 Після перегляду переходьте до конспекту й практичної частини — там ви перекладете матеріал на свій проєкт.""",
-        "workbook_text": """7️⃣
-
-<b>КОНСПЕКТ І ВОРКБУК ДО ЧАСТИНИ 2</b>
+        "workbook_text": """<b>КОНСПЕКТ І ВОРКБУК ДО ЧАСТИНИ 2</b>
 
 Відкрийте блок <b>«Що таке фундамент продажів і від чого насправді залежить стабільність вашого доходу»</b>.
 
@@ -144,9 +132,7 @@ LESSONS = {
         "title": "Частина 3. Шлях клієнта",
         "video": "BAACAgIAAxkBAANrarqE0QhSOYRVSuYYH6fMDNmOMfsAA7IAAmeA2EnUMyz9b1wQLT0E",
         "pdf": "BQACAgIAAxkBAAOHarqJWnfA0q4E_2I2ncw8fEG_2L4AAjGyAAJngNhJAsU43Z2Cw249BA",
-        "video_text": """8️⃣
-
-<b>ЧАСТИНА 3. ШЛЯХ КЛІЄНТА</b>
+        "video_text": """<b>ЧАСТИНА 3. ШЛЯХ КЛІЄНТА</b>
 
 У фінальній частині ми зберемо всі попередні напрацювання в систему: від першого контакту з людиною до заявки, продажу та наступних покупок.
 
@@ -168,9 +154,7 @@ LESSONS = {
 2:22:23 — відповіді на запитання учасниць
 
 Після перегляду переходьте до воркбуку, щоб зібрати власний шлях клієнта — від першого дотику до повторної покупки.""",
-        "workbook_text": """9️⃣
-
-<b>КОНСПЕКТ І ВОРКБУК ДО ЧАСТИНИ 3</b>
+        "workbook_text": """<b>КОНСПЕКТ І ВОРКБУК ДО ЧАСТИНИ 3</b>
 
 Відкрийте блок <b>«Що таке шлях клієнта і як побудувати ланцюжок дій, який стабільно буде давати продажі з блогу?»</b>
 
@@ -474,6 +458,65 @@ async def get_document_file_id(message: types.Message):
         f"Файл: {document.file_name or 'без назви'}\n"
         f"Розмір: {size_mb:.1f} МБ",
         parse_mode="HTML",
+    )
+
+
+@dp.message(Command("send_review_link"))
+async def send_review_link(message: types.Message):
+    if not is_admin(message.from_user.id):
+        await message.answer("У вас немає доступу до цієї команди.")
+        return
+
+    parts = (message.text or "").split(maxsplit=1)
+    if len(parts) != 2 or not parts[1].startswith(("https://", "http://")):
+        await message.answer(
+            "Використання:\n"
+            "/send_review_link https://посилання-на-zoom"
+        )
+        return
+
+    zoom_url = parts[1].strip()
+    async with db_pool.acquire() as conn:
+        users = await conn.fetch(
+            """
+            SELECT user_id FROM review_registrations
+            WHERE reminder_sent = FALSE
+            ORDER BY registered_at
+            """
+        )
+
+    if not users:
+        await message.answer(
+            "Немає зареєстрованих учасників, яким ще не надсилали посилання."
+        )
+        return
+
+    sent = 0
+    failed = 0
+    for row in users:
+        try:
+            await bot.send_message(
+                row["user_id"],
+                "Розбір починається незабаром 🤎\n\n"
+                f"Посилання на Zoom: {zoom_url}",
+            )
+            async with db_pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    UPDATE review_registrations
+                    SET reminder_sent = TRUE
+                    WHERE user_id = $1
+                    """,
+                    row["user_id"],
+                )
+            sent += 1
+        except Exception as error:
+            failed += 1
+            print(f"Не вдалося надіслати посилання {row['user_id']}: {error}")
+
+    await message.answer(
+        f"Посилання надіслано зареєстрованим учасникам: {sent}.\n"
+        f"Не вдалося надіслати: {failed}."
     )
 
 
