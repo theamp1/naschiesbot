@@ -20,7 +20,10 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 ADMIN_ID = os.getenv("ADMIN_ID")
 
 # Заповнюються у Railway після отримання кружечка та Zoom-посилання.
-INTRO_VIDEO_NOTE_ID = os.getenv("INTRO_VIDEO_NOTE_ID", "")
+INTRO_VIDEO_NOTE_ID = os.getenv(
+    "INTRO_VIDEO_NOTE_ID",
+    "DQACAgIAAxkBAAPrar4yyhoUzOPfNCBiGgob9nE2qIwAAsClAAICPvlJUk3_9TOKL009BA",
+)
 REVIEW_DATE = os.getenv("REVIEW_DATE", "29.11")
 REVIEW_TIME = os.getenv("REVIEW_TIME", "16:00")
 REVIEW_START_AT = os.getenv("REVIEW_START_AT", "")
@@ -53,7 +56,7 @@ LESSONS = {
     "lesson_1": {
         "title": "Частина 1. Етичні продажі",
         "video": "BAACAgIAAxkBAANnarqES0aFgGjVqBP2rqoVhojHzgsAAv2xAAJngNhJJZ1VvfueLjo9BA",
-        "pdf": "BQACAgIAAxkBAAOIarqJWtIGX7hD-8Z9PPohS6MI6jMAAjKyAAJngNhJNtnUyW3_iEY9BA",
+        "pdf": "BQACAgIAAxkBAAPvar4_jwR99v73-GUPe7tNtWIRJjwAAiCmAAICPvlJMJUP0GdUB_A9BA",
         "video_text": """<b>ЧАСТИНА 1. ЕТИЧНІ ПРОДАЖІ</b>
 
 Починаємо з фундаменту: як продавати переконливо, але без тиску, маніпуляцій і внутрішнього відчуття, що ви комусь щось нав’язуєте.
@@ -94,7 +97,7 @@ LESSONS = {
     "lesson_2": {
         "title": "Частина 2. Фундамент продажів",
         "video": "BAACAgIAAxkBAANparqEgIkYemrc_ebg4aFYwLExcB8AAv-xAAJngNhJwzuzfa8Tgkg9BA",
-        "pdf": "BQACAgIAAxkBAAOJarqJWtoOyTjDwvLhkNgD3yHKgukAAjCyAAJngNhJTJ9VPQAB6U88PQQ",
+        "pdf": "BQACAgIAAxkBAAPtar4_j9261InrI_XMozniZQW6o7gAAh-mAAICPvlJNkliY4Rc70E9BA",
         "video_text": """<b>ЧАСТИНА 2. ФУНДАМЕНТ ПРОДАЖІВ</b>
 
 У цій частині розберемо, чому стабільний дохід починається не з більшої кількості дій, а з реалістичної фінансової цілі, правильної конфігурації ресурсів і зрозумілої стратегії.
@@ -131,7 +134,7 @@ LESSONS = {
     "lesson_3": {
         "title": "Частина 3. Шлях клієнта",
         "video": "BAACAgIAAxkBAANrarqE0QhSOYRVSuYYH6fMDNmOMfsAA7IAAmeA2EnUMyz9b1wQLT0E",
-        "pdf": "BQACAgIAAxkBAAOHarqJWnfA0q4E_2I2ncw8fEG_2L4AAjGyAAJngNhJAsU43Z2Cw249BA",
+        "pdf": "BQACAgIAAxkBAAPuar4_j1X28aINWysNSWIYvUBgudAAAh6mAAICPvlJXcAJzFB-2SQ9BA",
         "video_text": """<b>ЧАСТИНА 3. ШЛЯХ КЛІЄНТА</b>
 
 У фінальній частині ми зберемо всі попередні напрацювання в систему: від першого контакту з людиною до заявки, продажу та наступних покупок.
